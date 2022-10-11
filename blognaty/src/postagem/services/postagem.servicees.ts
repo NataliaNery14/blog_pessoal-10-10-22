@@ -12,11 +12,13 @@ export class PostagemServices {
         private temaService: TemaService
     ) {}
 
-    async FindAll (): Promise<Postagem[]>{
-    return await this.PostegemRepository.find()
-    relations: {
-        tema: true
-    }
+    async findAll (): Promise<Postagem[]>{
+    return await this.PostegemRepository.find({
+        relations: {
+            tema: true
+        }
+    })
+    
     
     }
 
@@ -49,6 +51,12 @@ export class PostagemServices {
     }
 
     async create (postagem: Postagem): Promise<Postagem> {
+        if (postagem.tema){
+            let tema = await this.temaService.findById(postagem.tema.id)
+        if (!tema)
+            throw new HttpException('Tema não encontrado', HttpStatus.NOT_FOUND)
+        }
+
         return await this.PostegemRepository.save(postagem);
     }
 
@@ -65,7 +73,7 @@ export class PostagemServices {
             if (!tema)
                 throw new HttpException('Tema não encontrado!', HttpStatus.NOT_FOUND);
         
-                return await this.PostegemRepository.save(postagem);
+            return await this.PostegemRepository.save(postagem);
         }
 
     }
